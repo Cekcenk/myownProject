@@ -10,11 +10,8 @@ def overlay_audio_files(file1, file2, output_file):
 
     # Export the overlaid audio file
     overlaid_audio.export(output_file, format="mp3")
+
     print(f"Overlaid audio file saved as {output_file}")
 
 # Example usage
-file1 = "converted_input.wav"
-file2 = "inst.flac"
-output_file = "merged_audio_file.mp3"
-
-overlay_audio_files(file1, file2, output_file)
+# overlay_audio_files('vocal.wav', 'instrumental.wav', 'merged_audio.mp3')

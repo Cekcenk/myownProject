@@ -10,9 +10,8 @@ def download_mp3(youtube_url, output_path):
         }],
         'outtmpl': output_path
     }
-
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([youtube_url])
 
 # Example usage
-download_mp3('https://www.youtube.com/watch?v=UaHHVNN-z0E', 'output')
+# download_mp3('https://www.youtube.com/watch?v=UaHHVNN-z0E', 'output.mp3')

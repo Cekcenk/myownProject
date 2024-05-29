@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "music-clone"
+version = "0.1.0"
+description = "A project to download, separate, convert, and merge audio files."
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+
+[tool.poetry.urls]
+github = "https://github.com/Cekcenk/myownProject"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^2.3.0"
+fairseq = { git = "https://github.com/Tps-F/fairseq.git", branch = "main" }
+soundfile = "^0.12.1"
+librosa = "^0.10.1"
+praat-parselmouth = "^0.4.3"
+pyworld = "^0.3.4"
+torchcrepe = "^0.0.22"
+av = "^11.0.0"
+faiss-cpu = "^1.7.4"
+python-dotenv = "^1.0.0"
+pydub = "^0.25.1"
+click = "^8.1.7"
+tensorboardx = "^2.6.2.2"
+poethepoet = "^0.24.4"
+uvicorn = { version = "^0.26.0", optional = true }
+fastapi = "^0.109.0"
+python-multipart = { version = "^0.0.6", optional = true }
+numba = "0.59.0rc1"
+requests = ">=2"
+numpy = ">=1.23"
+samplerate = "0.1.0"
+six = ">=1.16"
+tqdm = "*"
+onnx = ">=1.14"
+onnx2torch = ">=1.5"
+onnxruntime = { version = ">=1.17", optional = true }
+onnxruntime-gpu = { version = ">=1.17", optional = true }
+julius = ">=0.2"
+diffq = ">=0.2"
+einops = ">=0.7"
+pyyaml = "*"
+ml_collections = "*"
+resampy = ">=0.4"
+beartype = "^0.18.5"
+rotary-embedding-torch = "^0.6.1"
+scipy = "^1.13.0"
+redis = "^3.5.3"
+celery = "^5.2.3"
+
+[tool.poetry.extras]
+api = ["uvicorn", "fastapi"]
+cpu = ["onnxruntime"]
+gpu = ["onnxruntime-gpu"]
+
+[tool.poetry.scripts]
+rvc = "rvc.wrapper.cli.cli:main"
+audio-separator = 'audio_separator.utils.cli:main'
+
+[tool.poe.tasks]
+rvc-api = "uvicorn rvc.wrapper.api.api:app --reload"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
