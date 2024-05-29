@@ -1,0 +1,17 @@
+# Ignore all assets and models directories in the project
+**/assets/
+**/models/
+
+# Ignore specific file types globally
+*.wav
+*.mp3
+*.pth
+*.ckpt
+*.onnx
+*.flac
+
+# Ensure specific directories are ignored
+./fastapi-rvc/assets/
+./my_audio_separator/models/
+my_audio_separator/dist/audio_separator-0.17.2.tar.gz
+*.zip
