@@ -1,7 +1,7 @@
 from celeryconfig import app
-import subprocess
+from do_it import separate_audio
 
 @app.task
-def separate_audio(input_path, model_name):
-    subprocess.run(['audio-separator', input_path, '--model_filename', model_name])
+def separate_audio_task(input_path, output_dir):
+    result = separate_audio(input_path, output_dir)
     return "Separation complete"

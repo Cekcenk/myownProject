@@ -1,4 +1,4 @@
-from python_audio_separator.audio_separator.separator import Separator
+from audio_separator.separator import Separator
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
