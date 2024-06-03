@@ -1,5 +1,5 @@
 from celery import shared_task
-from app.rvc_service import RVCService
+from fastapi_rvc.app.rvc_service  import RVCService
 import os
 
 @shared_task

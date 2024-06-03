@@ -1,6 +1,6 @@
 from pathlib import Path
 from scipy.io import wavfile
-from rvc.modules.vc.modules import VC
+from fastapi_rvc.rvc.modules.vc.modules import VC
 from dotenv import load_dotenv
 import os
 
