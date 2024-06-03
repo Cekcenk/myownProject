@@ -1,7 +1,10 @@
 from celery import shared_task
-from scripts.merge import overlay_audio_files
+from pydub import AudioSegment
 
 @shared_task
-def merge_audio(vocal_path, instrumental_path, output_path):
-    overlay_audio_files(vocal_path, instrumental_path, output_path)
+def merge_audio(processed_vocal_path, instrumental_path, final_output_path):
+    vocals = AudioSegment.from_file(processed_vocal_path)
+    instrumental = AudioSegment.from_file(instrumental_path)
+    final_output = instrumental.overlay(vocals)
+    final_output.export(final_output_path, format="mp3")
     return "Merge complete"

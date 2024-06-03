@@ -1,10 +1,10 @@
-import sys
 import os
+from dotenv import load_dotenv
 
-# Add necessary paths to the PYTHONPATH
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'my_audio_separator')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'fastapi-rvc')))
+# Load environment variables from .env file
+load_dotenv()
 
+# Set up the Celery application
 from celeryconfig import app
 
 if __name__ == '__main__':
