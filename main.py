@@ -1,7 +1,7 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../my_audio_separator'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../fastapi-rvc'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'my_audio_separator'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'fastapi-rvc'))
 import uuid
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
