@@ -7,4 +7,4 @@ def merge_audio(processed_vocal_path, instrumental_path, final_output_path):
     instrumental = AudioSegment.from_file(instrumental_path)
     final_output = instrumental.overlay(vocals)
     final_output.export(final_output_path, format="mp3")
-    return "Merge complete"
+    return None

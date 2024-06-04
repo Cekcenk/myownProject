@@ -11,4 +11,4 @@ def download_youtube_audio(youtube_url, output_path):
     logger.info(f"Starting download: {youtube_url} to {output_path}")
     download_mp3(youtube_url, output_path)
     logger.info(f"Download complete: {output_path}")
-    return "Download complete"
+    return None  # Explicitly return None to avoid passing the result to the next task

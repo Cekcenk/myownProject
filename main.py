@@ -4,7 +4,6 @@ import uuid
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from celery import chain
-from typing import Dict
 from celery_app import app as celery_app
 
 from tasks.download import download_youtube_audio
@@ -38,15 +37,15 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
     task_status[unique_id] = "0/4"
 
     # Create the task chain
-    task_chain = chain(
-        download_youtube_audio.s(request.youtube_link, output_path),
-        update_status.s("1/4").set(task_id=unique_id),
-        separate_audio_task.s(output_path, output_dir),
-        update_status.s("2/4").set(task_id=unique_id),
-        convert_vocals.s(vocal_path, request.model_name, processed_vocal_path),
-        update_status.s("3/4").set(task_id=unique_id),
-        merge_audio.s(processed_vocal_path, instrumental_path, final_output_path),
-        update_status.s("4/4").set(task_id=unique_id)
+    task_chain = (
+        download_youtube_audio.s(request.youtube_link, output_path) |
+        update_status.s(unique_id, "1/4") |
+        separate_audio_task.s(output_path, output_dir) |
+        update_status.s(unique_id, "2/4") |
+        convert_vocals.s(vocal_path, request.model_name, processed_vocal_path) |
+        update_status.s(unique_id, "3/4") |
+        merge_audio.s(processed_vocal_path, instrumental_path, final_output_path) |
+        update_status.s(unique_id, "4/4")
     )
 
     task_chain.apply_async()
