@@ -19,33 +19,41 @@ class ProcessRequest(BaseModel):
     youtube_link: str
     model_name: str
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @app.post("/process/")
 async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
     unique_id = str(uuid.uuid4())
-    output_path = f"downloads/{unique_id}.mp3"
+    output_path = f"downloads/{unique_id}"
+    input_path = f"{output_path}.mp3"
     output_dir = f"outputs/{unique_id}"
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    vocal_path = f"{output_dir}/vocals.wav"
-    instrumental_path = f"{output_dir}/instrumental.wav"
+    vocal_path = f"{output_dir}/{unique_id}_(Vocals)_MDX23C-8KFFT-InstVoc_HQ.wav"
+    instrumental_path = f"{output_dir}/{unique_id}_(Instrumental)_MDX23C-8KFFT-InstVoc_HQ.wav"
     processed_vocal_path = f"{output_dir}/processed_vocal.wav"
     final_output_path = f"{output_dir}/final_output.mp3"
 
     # Initialize task status
     task_status[unique_id] = "0/4"
 
+    logger.info(f"Starting process with output_path: {output_path} and output_dir: {output_dir}")
+
     # Create the task chain
     task_chain = (
         download_youtube_audio.s(request.youtube_link, output_path) |
-        update_status.s(unique_id, "1/4") |
-        separate_audio_task.s(output_path, output_dir) |
-        update_status.s(unique_id, "2/4") |
-        convert_vocals.s(vocal_path, request.model_name, processed_vocal_path) |
-        update_status.s(unique_id, "3/4") |
-        merge_audio.s(processed_vocal_path, instrumental_path, final_output_path) |
-        update_status.s(unique_id, "4/4")
+        update_status.s(task_id=unique_id, status="1/4") |
+        separate_audio_task.s(input_path=input_path, output_dir=output_dir) |
+        update_status.s(task_id=unique_id, status="2/4") |
+        convert_vocals.s(vocal_path=vocal_path, model_name=request.model_name, processed_vocal_path=processed_vocal_path) |
+        # convert_vocals.s(vocal_path="outputs/e0d8fe2f-f0e5-4eb6-ad80-6123a4251b79/e0d8fe2f-f0e5-4eb6-ad80-6123a4251b79_(Vocals)_MDX23C-8KFFT-InstVoc_HQ.wav", model_name=request.model_name, processed_vocal_path=processed_vocal_path) |
+        update_status.s(task_id=unique_id, status="3/4") |
+        merge_audio.s(processed_vocal_path=processed_vocal_path, instrumental_path=instrumental_path, final_output_path=final_output_path) |
+        update_status.s(task_id=unique_id, status="4/4")
     )
 
     task_chain.apply_async()
