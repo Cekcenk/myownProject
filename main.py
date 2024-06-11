@@ -45,7 +45,7 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
 
     # Create the task chain
     task_chain = (
-        download_youtube_audio.s(request.youtube_link, output_path) |
+        download_youtube_audio.s(youtube_url=request.youtube_link, output_path=output_path) |
         update_status.s(task_id=unique_id, status="1/4") |
         separate_audio_task.s(input_path=input_path, output_dir=output_dir) |
         update_status.s(task_id=unique_id, status="2/4") |
