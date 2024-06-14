@@ -1,0 +1,19 @@
+{
+    "models": {
+        "AdolfHitler": {
+            "pth_s3_path": "s3://sing-ai-models/AdolfHitler/AdolfHitler.pth",
+            "index_s3_path": "s3://sing-ai-models/AdolfHitler/AdolfHitler.index",
+            "description": "Description of AdolfHitler model"
+        },
+        "Alanrickman(Snape)": {
+            "pth_s3_path": "s3://sing-ai-models/Alanrickman(Snape)/Alanrickman(Snape).pth",
+            "index_s3_path": "s3://sing-ai-models/Alanrickman(Snape)/Alanrickman(Snape).index",
+            "description": "Description of Alanrickman(Snape) model"
+        },
+        "Alvin": {
+            "pth_s3_path": "s3://sing-ai-models/Alvin/Alvin.pth",
+            "index_s3_path": "s3://sing-ai-models/Alvin/Alvin.index",
+            "description": "Description of Alvin model"
+        }
+    }
+}
