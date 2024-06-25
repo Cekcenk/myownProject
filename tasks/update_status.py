@@ -1,6 +1,10 @@
 from celery import shared_task
 from task_status import task_status
 from firebase_config import db
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -41,3 +45,44 @@ def finish_status(*args, user_id, task_id, s3_url):
         })
     except Exception as e:
         print(f"Error updating soundUrl in Firestore: {e}")
+        
+
+def check_user_subscription(user_id):
+    try:
+        user_doc_ref = db.collection("users").document(user_id)
+        user_doc = user_doc_ref.get()
+        
+        if not user_doc.exists:
+            return False
+        
+        data = user_doc.to_dict()
+        
+        if not data:
+            logger.warning(f"User {user_id} exists but has no fields.")
+            return False
+        
+        entitlements = data.get("entitlements")
+        if not entitlements or "subscription" not in entitlements:
+            logger.info(f"User {user_id} does not have a subscription.")
+            return False
+        
+        subscription = entitlements.get("subscription")
+        if not subscription:
+            logger.warning(f"User {user_id} has no subscription information.")
+            return False
+        
+        expires_date = subscription.get("expires_date")
+        
+        if expires_date is None:
+            logger.info(f"User {user_id} has no expiration date.")
+            return True
+        
+        expires_date = datetime.strptime(expires_date, "%Y-%m-%dT%H:%M:%SZ")
+        if expires_date < datetime.now():
+            logger.info(f"Subscription for user {user_id} has expired.")
+            return False
+        
+        return True
+    except Exception as e:
+        logger.error(f"Error checking user subscription for user {user_id}: {e}")
+        return False

@@ -18,3 +18,9 @@ def merge_audio(*args, processed_vocal_path, instrumental_path, final_output_pat
     # Upload to S3
     s3 = boto3.client('s3')
     s3.upload_file(renamed_output_path, bucket_name, s3_key)
+
+    return {
+        "output_path": renamed_output_path,
+        "processed_vocal_path": processed_vocal_path,
+        "instrumental_path": instrumental_path
+    }

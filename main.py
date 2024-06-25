@@ -1,4 +1,3 @@
-import sys
 import os
 import uuid
 import logging
@@ -11,12 +10,13 @@ from tasks.download import download_youtube_audio
 from tasks.separate import separate_audio_task
 from tasks.convert import convert_vocals
 from tasks.merge import merge_audio
-from tasks.update_status import update_status, init_status, finish_status
+from tasks.cleanup_files import cleanup_files
+from tasks.update_status import update_status, init_status, finish_status, check_user_subscription
 from task_status import task_status
 from dotenv import load_dotenv
 from utils import download_model_files
-import firebase_admin
 from firebase_admin import auth
+
 
 app = FastAPI()
 
@@ -48,8 +48,9 @@ with open('models_config.json') as f:
 @app.post("/process/")
 async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
     try:
-        decoded_token = auth.verify_id_token(request.idToken)
-        user_id = decoded_token['uid']
+        # decoded_token = auth.verify_id_token(request.idToken)
+        # user_id = decoded_token['uid']
+        user_id = "b9wn2djjYLZdHLQtMgxvhL1C4QU2"
 
         unique_id = str(uuid.uuid4())
         output_path = os.path.join(DOWNLOADS_DIR, unique_id)
@@ -85,9 +86,11 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
         # Download the model files if not already cached
         pth_local_path, index_local_path = download_model_files(model_info, local_model_dir)
 
+        subbed = check_user_subscription(user_id);
+        
         # Create the task chain
         task_chain = (
-            download_youtube_audio.s(youtube_url=request.youtube_link, output_path=output_path) |
+            download_youtube_audio.s(youtube_url=request.youtube_link, output_path=output_path, full_video=subbed) |
             update_status.s(user_id=user_id, task_id=unique_id, status="1/4") |
             separate_audio_task.s(input_path=input_path, output_dir=output_dir) |
             update_status.s(user_id=user_id, task_id=unique_id, status="2/4") |
@@ -101,12 +104,15 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
                 s3_key=f'{unique_id}.mp3'
             ) |
             update_status.s(user_id=user_id, task_id=unique_id, status="4/4") |
-            finish_status.s(user_id=user_id, task_id=unique_id, s3_url=f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{unique_id}.mp3')
+            finish_status.s(user_id=user_id, task_id=unique_id, s3_url=f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{unique_id}.mp3') |
+            cleanup_files.s(
+                processed_vocal_path=processed_vocal_path, 
+                instrumental_path=instrumental_path,
+                directories=[output_dir, output_path]
+            )
         )
 
         task_chain.apply_async()
-
-        background_tasks.add_task(cleanup_files, [output_path, vocal_path, instrumental_path, processed_vocal_path])
 
         return {"message": "Processing started", "id": unique_id}
     except Exception as e:
@@ -117,11 +123,6 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
 async def get_status(task_id: str):
     status = task_status.get(task_id, "Task not found")
     return {"task_id": task_id, "status": status}
-
-async def cleanup_files(files):
-    for file in files:
-        if os.path.exists(file):
-            os.remove(file)
 
 if __name__ == "__main__":
     import uvicorn
