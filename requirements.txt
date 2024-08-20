@@ -1,0 +1,13 @@
+poetry
+fastapi
+uvicorn
+celery
+redis
+torch
+torchaudio
+librosa
+numpy
+pydantic
+requests
+python-dotenv
+tenacity

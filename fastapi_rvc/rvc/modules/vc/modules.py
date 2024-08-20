@@ -48,6 +48,11 @@ class VC:
         logger.info(f"Loading: {person}")
 
         self.cpt = torch.load(person, map_location="cpu")
+        
+        if "config" not in self.cpt:
+            logger.error(f"Invalid checkpoint: 'config' key not found in {person}")
+            raise ValueError(f"Invalid checkpoint: 'config' key not found in {person}")
+
         self.tgt_sr = self.cpt["config"][-1]
         self.cpt["config"][-3] = self.cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
         self.if_f0 = self.cpt.get("f0", 1)

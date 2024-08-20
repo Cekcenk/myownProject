@@ -14,6 +14,295 @@
             "pth_s3_path": "s3://sing-ai-models/Alvin/Alvin.pth",
             "index_s3_path": "s3://sing-ai-models/Alvin/Alvin.index",
             "description": "Description of Alvin model"
+        },"Avrill": {
+            "pth_s3_path": "s3://sing-ai-models/Avrill/Avrill.pth",
+            "index_s3_path": "s3://sing-ai-models/Avrill/Avrill.index",
+            "description": "Description of Avrill model"
+        },
+        "Beyonce": {
+            "pth_s3_path": "s3://sing-ai-models/Beyonce/Beyonce.pth",
+            "index_s3_path": "s3://sing-ai-models/Beyonce/Beyonce.index",
+            "description": "Description of Beyonce model"
+        },
+        "BillieEilish2019": {
+            "pth_s3_path": "s3://sing-ai-models/BillieEilish2019/BillieEilish2019.pth",
+            "index_s3_path": "s3://sing-ai-models/BillieEilish2019/BillieEilish2019.index",
+            "description": "Description of BillieEilish2019 model"
+        },
+        "BritneySpearsRVC": {
+            "pth_s3_path": "s3://sing-ai-models/BritneySpearsRVC/BritneySpearsRVC.pth",
+            "index_s3_path": "s3://sing-ai-models/BritneySpearsRVC/BritneySpearsRVC.index",
+            "description": "Description of BritneySpearsRVC model"
+        },
+        "BrunoMars": {
+            "pth_s3_path": "s3://sing-ai-models/BrunoMars/BrunoMars.pth",
+            "index_s3_path": "s3://sing-ai-models/BrunoMars/BrunoMars.index",
+            "description": "Description of BrunoMars model"
+        },
+        "Camila": {
+            "pth_s3_path": "s3://sing-ai-models/Camila/Camila.pth",
+            "index_s3_path": "s3://sing-ai-models/Camila/Camila.index",
+            "description": "Description of Camila model"
+        },
+        "Darth": {
+            "pth_s3_path": "s3://sing-ai-models/Darth/Darth.pth",
+            "index_s3_path": "s3://sing-ai-models/Darth/Darth.index",
+            "description": "Description of Darth model"
+        },
+        "Dio_Brando": {
+            "pth_s3_path": "s3://sing-ai-models/Dio_Brando/Dio_Brando.pth",
+            "index_s3_path": "s3://sing-ai-models/Dio_Brando/Dio_Brando.index",
+            "description": "Description of Dio_Brando model"
+        },
+        "DuaLipaRVC": {
+            "pth_s3_path": "s3://sing-ai-models/DuaLipaRVC/DuaLipaRVC.pth",
+            "index_s3_path": "s3://sing-ai-models/DuaLipaRVC/DuaLipaRVC.index",
+            "description": "Description of DuaLipaRVC model"
+        },
+        "Elvis_model": {
+            "pth_s3_path": "s3://sing-ai-models/Elvis_model/Elvis_model.pth",
+            "index_s3_path": "s3://sing-ai-models/Elvis_model/Elvis_model.index",
+            "description": "Description of Elvis_model model"
+        },
+        "Eric_Cartman_(RVC_v2)": {
+            "pth_s3_path": "s3://sing-ai-models/Eric_Cartman_(RVC_v2)/Eric_Cartman_(RVC_v2).pth",
+            "index_s3_path": "s3://sing-ai-models/Eric_Cartman_(RVC_v2)/Eric_Cartman_(RVC_v2).index",
+            "description": "Description of Eric_Cartman_(RVC_v2) model"
+        },
+        "Freddie": {
+            "pth_s3_path": "s3://sing-ai-models/Freddie/Freddie.pth",
+            "index_s3_path": "s3://sing-ai-models/Freddie/Freddie.index",
+            "description": "Description of Freddie model"
+        },
+        "Gawr": {
+            "pth_s3_path": "s3://sing-ai-models/Gawr/Gawr.pth",
+            "index_s3_path": "s3://sing-ai-models/Gawr/Gawr.index",
+            "description": "Description of Gawr model"
+        },
+        "Hatsune": {
+            "pth_s3_path": "s3://sing-ai-models/Hatsune/Hatsune.pth",
+            "index_s3_path": "s3://sing-ai-models/Hatsune/Hatsune.index",
+            "description": "Description of Hatsune model"
+        },
+        "Homero": {
+            "pth_s3_path": "s3://sing-ai-models/Homero/Homero.pth",
+            "index_s3_path": "s3://sing-ai-models/Homero/Homero.index",
+            "description": "Description of Homero model"
+        },
+        "J-HOPE": {
+            "pth_s3_path": "s3://sing-ai-models/J-HOPE/J-HOPE.pth",
+            "index_s3_path": "s3://sing-ai-models/J-HOPE/J-HOPE.index",
+            "description": "Description of J-HOPE model"
+        },
+        "JUICEWORLD": {
+            "pth_s3_path": "s3://sing-ai-models/JUICEWORLD/JUICEWORLD.pth",
+            "index_s3_path": "s3://sing-ai-models/JUICEWORLD/JUICEWORLD.index",
+            "description": "Description of JUICEWORLD model"
+        },
+        "Jennie": {
+            "pth_s3_path": "s3://sing-ai-models/Jennie/Jennie.pth",
+            "index_s3_path": "s3://sing-ai-models/Jennie/Jennie.index",
+            "description": "Description of Jennie model"
+        },
+        "Jiraya": {
+            "pth_s3_path": "s3://sing-ai-models/Jiraya/Jiraya.pth",
+            "index_s3_path": "s3://sing-ai-models/Jiraya/Jiraya.index",
+            "description": "Description of Jiraya model"
+        },
+        "Jotaro_Kujo": {
+            "pth_s3_path": "s3://sing-ai-models/Jotaro_Kujo/Jotaro_Kujo.pth",
+            "index_s3_path": "s3://sing-ai-models/Jotaro_Kujo/Jotaro_Kujo.index",
+            "description": "Description of Jotaro_Kujo model"
+        },
+        "Kanye": {
+            "pth_s3_path": "s3://sing-ai-models/Kanye/Kanye.pth",
+            "index_s3_path": "s3://sing-ai-models/Kanye/Kanye.index",
+            "description": "Description of Kanye model"
+        },
+        "Keanu": {
+            "pth_s3_path": "s3://sing-ai-models/Keanu/Keanu.pth",
+            "index_s3_path": "s3://sing-ai-models/Keanu/Keanu.index",
+            "description": "Description of Keanu model"
+        },
+        "Kenny": {
+            "pth_s3_path": "s3://sing-ai-models/Kenny/Kenny.pth",
+            "index_s3_path": "s3://sing-ai-models/Kenny/Kenny.index",
+            "description": "Description of Kenny model"
+        },
+        "Kurt": {
+            "pth_s3_path": "s3://sing-ai-models/Kurt/Kurt.pth",
+            "index_s3_path": "s3://sing-ai-models/Kurt/Kurt.index",
+            "description": "Description of Kurt model"
+        },
+        "LadyGaga": {
+            "pth_s3_path": "s3://sing-ai-models/LadyGaga/LadyGaga.pth",
+            "index_s3_path": "s3://sing-ai-models/LadyGaga/LadyGaga.index",
+            "description": "Description of LadyGaga model"
+        },
+        "MIchael": {
+            "pth_s3_path": "s3://sing-ai-models/MIchael/MIchael.pth",
+            "index_s3_path": "s3://sing-ai-models/MIchael/MIchael.index",
+            "description": "Description of MIchael model"
+        },
+        "Megatron": {
+            "pth_s3_path": "s3://sing-ai-models/Megatron/Megatron.pth",
+            "index_s3_path": "s3://sing-ai-models/Megatron/Megatron.index",
+            "description": "Description of Megatron model"
+        },
+        "Monkey": {
+            "pth_s3_path": "s3://sing-ai-models/Monkey/Monkey.pth",
+            "index_s3_path": "s3://sing-ai-models/Monkey/Monkey.index",
+            "description": "Description of Monkey model"
+        },
+        "MrKrabs": {
+            "pth_s3_path": "s3://sing-ai-models/MrKrabs/MrKrabs.pth",
+            "index_s3_path": "s3://sing-ai-models/MrKrabs/MrKrabs.index",
+            "description": "Description of MrKrabs model"
+        },
+        "Nayeon": {
+            "pth_s3_path": "s3://sing-ai-models/Nayeon/Nayeon.pth",
+            "index_s3_path": "s3://sing-ai-models/Nayeon/Nayeon.index",
+            "description": "Description of Nayeon model"
+        },
+        "PatrickStar": {
+            "pth_s3_path": "s3://sing-ai-models/PatrickStar/PatrickStar.pth",
+            "index_s3_path": "s3://sing-ai-models/PatrickStar/PatrickStar.index",
+            "description": "Description of PatrickStar model"
+        },
+        "Peter": {
+            "pth_s3_path": "s3://sing-ai-models/Peter/Peter.pth",
+            "index_s3_path": "s3://sing-ai-models/Peter/Peter.index",
+            "description": "Description of Peter model"
+        },
+        "Rihanna": {
+            "pth_s3_path": "s3://sing-ai-models/Rihanna/Rihanna.pth",
+            "index_s3_path": "s3://sing-ai-models/Rihanna/Rihanna.index",
+            "description": "Description of Rihanna model"
+        },
+        "SelenaGomez": {
+            "pth_s3_path": "s3://sing-ai-models/SelenaGomez/SelenaGomez.pth",
+            "index_s3_path": "s3://sing-ai-models/SelenaGomez/SelenaGomez.index",
+            "description": "Description of SelenaGomez model"
+        },
+        "SheldonPlankton": {
+            "pth_s3_path": "s3://sing-ai-models/SheldonPlankton/SheldonPlankton.pth",
+            "index_s3_path": "s3://sing-ai-models/SheldonPlankton/SheldonPlankton.index",
+            "description": "Description of SheldonPlankton model"
+        },
+        "Shrek": {
+            "pth_s3_path": "s3://sing-ai-models/Shrek/Shrek.pth",
+            "index_s3_path": "s3://sing-ai-models/Shrek/Shrek.index",
+            "description": "Description of Shrek model"
+        },
+        "Sonic": {
+            "pth_s3_path": "s3://sing-ai-models/Sonic/Sonic.pth",
+            "index_s3_path": "s3://sing-ai-models/Sonic/Sonic.index",
+            "description": "Description of Sonic model"
+        },
+        "Spongebob": {
+            "pth_s3_path": "s3://sing-ai-models/Spongebob/Spongebob.pth",
+            "index_s3_path": "s3://sing-ai-models/Spongebob/Spongebob.index",
+            "description": "Description of Spongebob model"
+        },
+        "Squidward": {
+            "pth_s3_path": "s3://sing-ai-models/Squidward/Squidward.pth",
+            "index_s3_path": "s3://sing-ai-models/Squidward/Squidward.index",
+            "description": "Description of Squidward model"
+        },
+        "Suga": {
+            "pth_s3_path": "s3://sing-ai-models/Suga/Suga.pth",
+            "index_s3_path": "s3://sing-ai-models/Suga/Suga.index",
+            "description": "Description of Suga model"
+        },
+        "TaylorSwift": {
+            "pth_s3_path": "s3://sing-ai-models/TaylorSwift/TaylorSwift.pth",
+            "index_s3_path": "s3://sing-ai-models/TaylorSwift/TaylorSwift.index",
+            "description": "Description of TaylorSwift model"
+        },
+        "The": {
+            "pth_s3_path": "s3://sing-ai-models/The/The.pth",
+            "index_s3_path": "s3://sing-ai-models/The/The.index",
+            "description": "Description of The model"
+        },
+        "Vegeta": {
+            "pth_s3_path": "s3://sing-ai-models/Vegeta/Vegeta.pth",
+            "index_s3_path": "s3://sing-ai-models/Vegeta/Vegeta.index",
+            "description": "Description of Vegeta model"
+        },
+        "Zoro": {
+            "pth_s3_path": "s3://sing-ai-models/Zoro/Zoro.pth",
+            "index_s3_path": "s3://sing-ai-models/Zoro/Zoro.index",
+            "description": "Description of Zoro model"
+        },
+        "adelemodel": {
+            "pth_s3_path": "s3://sing-ai-models/adelemodel/adelemodel.pth",
+            "index_s3_path": "s3://sing-ai-models/adelemodel/adelemodel.index",
+            "description": "Description of adelemodel model"
+        },
+        "ariana": {
+            "pth_s3_path": "s3://sing-ai-models/ariana/ariana.pth",
+            "index_s3_path": "s3://sing-ai-models/ariana/ariana.index",
+            "description": "Description of ariana model"
+        },
+        "arianagrandev2": {
+            "pth_s3_path": "s3://sing-ai-models/arianagrandev2/arianagrandev2.pth",
+            "index_s3_path": "s3://sing-ai-models/arianagrandev2/arianagrandev2.index",
+            "description": "Description of arianagrandev2 model"
+        },
+        "drake01": {
+            "pth_s3_path": "s3://sing-ai-models/drake01/drake01.pth",
+            "index_s3_path": "s3://sing-ai-models/drake01/drake01.index",
+            "description": "Description of drake01 model"
+        },
+        "goku": {
+            "pth_s3_path": "s3://sing-ai-models/goku/goku.pth",
+            "index_s3_path": "s3://sing-ai-models/goku/goku.index",
+            "description": "Description of goku model"
+        },
+        "jimin": {
+            "pth_s3_path": "s3://sing-ai-models/jimin/jimin.pth",
+            "index_s3_path": "s3://sing-ai-models/jimin/jimin.index",
+            "description": "Description of jimin model"
+        },
+        "justinbieber": {
+            "pth_s3_path": "s3://sing-ai-models/justinbieber/justinbieber.pth",
+            "index_s3_path": "s3://sing-ai-models/justinbieber/justinbieber.index",
+            "description": "Description of justinbieber model"
+        },
+        "lisa": {
+            "pth_s3_path": "s3://sing-ai-models/lisa/lisa.pth",
+            "index_s3_path": "s3://sing-ai-models/lisa/lisa.index",
+            "description": "Description of lisa model"
+        },
+        "nicki": {
+            "pth_s3_path": "s3://sing-ai-models/nicki/nicki.pth",
+            "index_s3_path": "s3://sing-ai-models/nicki/nicki.index",
+            "description": "Description of nicki model"
+        },
+        "seokjin": {
+            "pth_s3_path": "s3://sing-ai-models/seokjin/seokjin.pth",
+            "index_s3_path": "s3://sing-ai-models/seokjin/seokjin.index",
+            "description": "Description of seokjin model"
+        },
+        "taehyung": {
+            "pth_s3_path": "s3://sing-ai-models/taehyung/taehyung.pth",
+            "index_s3_path": "s3://sing-ai-models/taehyung/taehyung.index",
+            "description": "Description of taehyung model"
+        },
+        "the-weeknd": {
+            "pth_s3_path": "s3://sing-ai-models/the-weeknd/the-weeknd.pth",
+            "index_s3_path": "s3://sing-ai-models/the-weeknd/the-weeknd.index",
+            "description": "Description of the-weeknd model"
+        },
+        "travis": {
+            "pth_s3_path": "s3://sing-ai-models/travis/travis.pth",
+            "index_s3_path": "s3://sing-ai-models/travis/travis.index",
+            "description": "Description of travis model"
+        },
+        "villager": {
+            "pth_s3_path": "s3://sing-ai-models/villager/villager.pth",
+            "index_s3_path": "s3://sing-ai-models/villager/villager.index",
+            "description": "Description of villager model"
         }
     }
 }

@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+celery
+redis
+python-dotenv
+firebase-admin
+pydantic
