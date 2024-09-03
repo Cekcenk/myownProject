@@ -1,30 +1,27 @@
-import os
 from io import BytesIO
+import os
 from typing import List, Optional, Tuple
-
 import numpy as np
 import torch
 
-from rvc.lib import jit
+from infer.lib import jit
 
 try:
     # Fix "Torch not compiled with CUDA enabled"
     import intel_extension_for_pytorch as ipex  # pylint: disable=import-error, unused-import
 
     if torch.xpu.is_available():
-        from rvc.lib.ipex import ipex_init
+        from infer.modules.ipex import ipex_init
 
         ipex_init()
 except Exception:  # pylint: disable=broad-exception-caught
     pass
-import logging
-from time import time as ttime
-
 import torch.nn as nn
 import torch.nn.functional as F
-from librosa.filters import mel
 from librosa.util import normalize, pad_center, tiny
 from scipy.signal import get_window
+
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -157,6 +154,9 @@ class STFT(torch.nn.Module):
         self.magnitude, self.phase = self.transform(input_data, return_phase=True)
         reconstruction = self.inverse(self.magnitude, self.phase)
         return reconstruction
+
+
+from time import time as ttime
 
 
 class BiGRU(nn.Module):
@@ -412,6 +412,9 @@ class E2E(nn.Module):
         return x
 
 
+from librosa.filters import mel
+
+
 class MelSpectrogram(torch.nn.Module):
     def __init__(
         self,
@@ -590,16 +593,18 @@ class RMVPE:
 
     def infer_from_audio(self, audio, thred=0.03):
         # torch.cuda.synchronize()
-        t0 = ttime()
+        # t0 = ttime()
+        if not torch.is_tensor(audio):
+            audio = torch.from_numpy(audio)
         mel = self.mel_extractor(
-            torch.from_numpy(audio).float().to(self.device).unsqueeze(0), center=True
+            audio.float().to(self.device).unsqueeze(0), center=True
         )
         # print(123123123,mel.device.type)
         # torch.cuda.synchronize()
-        t1 = ttime()
+        # t1 = ttime()
         hidden = self.mel2hidden(mel)
         # torch.cuda.synchronize()
-        t2 = ttime()
+        # t2 = ttime()
         # print(234234,hidden.device.type)
         if "privateuseone" not in str(self.device):
             hidden = hidden.squeeze(0).cpu().numpy()
@@ -610,7 +615,7 @@ class RMVPE:
 
         f0 = self.decode(hidden, thred=thred)
         # torch.cuda.synchronize()
-        t3 = ttime()
+        # t3 = ttime()
         # print("hmvpe:%s\t%s\t%s\t%s"%(t1-t0,t2-t1,t3-t2,t3-t0))
         return f0
 

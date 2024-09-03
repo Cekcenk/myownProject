@@ -5,6 +5,7 @@ from .merge import merge_audio
 from .update_status import update_status
 from .cleanup_files import cleanup_files
 from .process_audio import process_audio_task
+from .train_task import train1key_celery, preprocess_task, extract_f0_task, train_task
 
 __all__ = ['download_youtube_audio', 'separate_audio_task', 'convert_vocals', 'merge_audio', 'update_status', 'cleanup_files', 'send_fcm_notification', 'finish_status',
-            'process_audio_task']
+            'process_audio_task', 'train1key_celery', 'preprocess_task', 'extract_f0_task', 'train_task']

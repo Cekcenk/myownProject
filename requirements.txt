@@ -11,3 +11,12 @@ pydantic
 requests
 python-dotenv
 tenacity
+yt_dlp
+pyyaml
+onnxruntime
+tqdm
+boto3
+firebase-admin
+sentry-sdk
+ffmpeg
+i18n

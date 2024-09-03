@@ -1,8 +1,7 @@
-import logging
-
 import torch
 import torch.utils.data
 from librosa.filters import mel as librosa_mel_fn
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +52,6 @@ def spectrogram_torch(y, n_fft, sampling_rate, hop_size, win_size, center=False)
     Returns:
         :: (B, Freq, Frame) - Linear-frequency Linear-amplitude spectrogram
     """
-    # Validation
-    if torch.min(y) < -1.07:
-        logger.debug("min value is %s", str(torch.min(y)))
-    if torch.max(y) > 1.07:
-        logger.debug("max value is %s", str(torch.max(y)))
 
     # Window - Cache if needed
     global hann_window
@@ -87,11 +81,11 @@ def spectrogram_torch(y, n_fft, sampling_rate, hop_size, win_size, center=False)
         pad_mode="reflect",
         normalized=False,
         onesided=True,
-        return_complex=False,
+        return_complex=True,
     )
 
     # Linear-frequency Linear-amplitude spectrogram :: (B, Freq, Frame, RealComplex=2) -> (B, Freq, Frame)
-    spec = torch.sqrt(spec.pow(2).sum(-1) + 1e-6)
+    spec = torch.sqrt(spec.real.pow(2) + spec.imag.pow(2) + 1e-6)
     return spec
 
 

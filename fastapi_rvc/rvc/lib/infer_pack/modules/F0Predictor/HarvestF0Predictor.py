@@ -1,7 +1,7 @@
 import numpy as np
 import pyworld
 
-from rvc.lib.infer_pack.modules.F0Predictor.F0Predictor import F0Predictor
+from infer.lib.infer_pack.modules.F0Predictor.F0Predictor import F0Predictor
 
 
 class HarvestF0Predictor(F0Predictor):

@@ -7,8 +7,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from rvc.lib.infer_pack import commons, modules
-from rvc.lib.infer_pack.modules import LayerNorm
+from fastapi_rvc.rvc.lib.infer_pack import commons, modules
+from fastapi_rvc.rvc.lib.infer_pack.modules import LayerNorm
 
 
 class Encoder(nn.Module):

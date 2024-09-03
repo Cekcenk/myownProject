@@ -3,9 +3,9 @@ import glob
 import json
 import logging
 import os
-import shutil
 import subprocess
 import sys
+import shutil
 
 import numpy as np
 import torch
@@ -278,111 +278,43 @@ def load_wav_to_torch(full_path):
 
 
 def load_filepaths_and_text(filename, split="|"):
-    with open(filename, encoding="utf-8") as f:
-        filepaths_and_text = [line.strip().split(split) for line in f]
+    try:
+        with open(filename, encoding="utf-8") as f:
+            filepaths_and_text = [line.strip().split(split) for line in f]
+    except UnicodeDecodeError:
+        with open(filename) as f:
+            filepaths_and_text = [line.strip().split(split) for line in f]
+    
     return filepaths_and_text
 
 
-def get_hparams(init=True):
-    """
-    todo:
-      结尾七人组：
-        保存频率、总epoch                     done
-        bs                                    done
-        pretrainG、pretrainD                  done
-        卡号：os.en["CUDA_VISIBLE_DEVICES"]   done
-        if_latest                             done
-      模型：if_f0                             done
-      采样率：自动选择config                  done
-      是否缓存数据集进GPU:if_cache_data_in_gpu done
-
-      -m:
-        自动决定training_files路径,改掉train_nsf_load_pretrain.py里的hps.data.training_files    done
-      -c不要了
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-se",
-        "--save_every_epoch",
-        type=int,
-        required=True,
-        help="checkpoint save frequency (epoch)",
-    )
-    parser.add_argument(
-        "-te", "--total_epoch", type=int, required=True, help="total_epoch"
-    )
-    parser.add_argument(
-        "-pg", "--pretrainG", type=str, default="", help="Pretrained Discriminator path"
-    )
-    parser.add_argument(
-        "-pd", "--pretrainD", type=str, default="", help="Pretrained Generator path"
-    )
-    parser.add_argument("-g", "--gpus", type=str, default="0", help="split by -")
-    parser.add_argument(
-        "-bs", "--batch_size", type=int, required=True, help="batch size"
-    )
-    parser.add_argument(
-        "-e", "--experiment_dir", type=str, required=True, help="experiment dir"
-    )  # -m
-    parser.add_argument(
-        "-sr", "--sample_rate", type=str, required=True, help="sample rate, 32k/40k/48k"
-    )
-    parser.add_argument(
-        "-sw",
-        "--save_every_weights",
-        type=str,
-        default="0",
-        help="save the extracted model in weights directory when saving checkpoints",
-    )
-    parser.add_argument(
-        "-v", "--version", type=str, required=True, help="model version"
-    )
-    parser.add_argument(
-        "-f0",
-        "--if_f0",
-        type=int,
-        required=True,
-        help="use f0 as one of the inputs of the model, 1 or 0",
-    )
-    parser.add_argument(
-        "-l",
-        "--if_latest",
-        type=int,
-        required=True,
-        help="if only save the latest G/D pth file, 1 or 0",
-    )
-    parser.add_argument(
-        "-c",
-        "--if_cache_data_in_gpu",
-        type=int,
-        required=True,
-        help="if caching the dataset in GPU memory, 1 or 0",
+def get_hparams(
+    save_every_epoch,
+    total_epoch,
+    batch_size,
+    experiment_dir,
+    sample_rate,
+    save_every_weights="0",
+    version="v2",
+    if_f0=1,
+    if_latest=1,
+    if_cache_data_in_gpu=1
+):
+    hparams = HParams(
+        save_every_epoch=save_every_epoch,
+        total_epoch=total_epoch,
+        batch_size=batch_size,
+        experiment_dir=experiment_dir,
+        sample_rate=sample_rate,
+        save_every_weights=save_every_weights,
+        version=version,
+        if_f0=if_f0,
+        if_latest=if_latest,
+        if_cache_data_in_gpu=if_cache_data_in_gpu
     )
 
-    args = parser.parse_args()
-    name = args.experiment_dir
-    experiment_dir = os.path.join("./logs", args.experiment_dir)
+    # Add any other necessary configurations here
 
-    config_save_path = os.path.join(experiment_dir, "config.json")
-    with open(config_save_path, "r") as f:
-        config = json.load(f)
-
-    hparams = HParams(**config)
-    hparams.model_dir = hparams.experiment_dir = experiment_dir
-    hparams.save_every_epoch = args.save_every_epoch
-    hparams.name = name
-    hparams.total_epoch = args.total_epoch
-    hparams.pretrainG = args.pretrainG
-    hparams.pretrainD = args.pretrainD
-    hparams.version = args.version
-    hparams.gpus = args.gpus
-    hparams.train.batch_size = args.batch_size
-    hparams.sample_rate = args.sample_rate
-    hparams.if_f0 = args.if_f0
-    hparams.if_latest = args.if_latest
-    hparams.save_every_weights = args.save_every_weights
-    hparams.if_cache_data_in_gpu = args.if_cache_data_in_gpu
-    hparams.data.training_files = "%s/filelist.txt" % experiment_dir
     return hparams
 
 

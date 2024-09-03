@@ -1,6 +1,6 @@
-import logging
 import os
 import traceback
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -8,8 +8,8 @@ import numpy as np
 import torch
 import torch.utils.data
 
-from rvc.lib.train.mel_processing import spectrogram_torch
-from rvc.lib.train.utils import load_filepaths_and_text, load_wav_to_torch
+from fastapi_rvc.rvc.lib.train.mel_processing import spectrogram_torch
+from fastapi_rvc.rvc.lib.train.utils import load_filepaths_and_text, load_wav_to_torch
 
 
 class TextAudioLoaderMultiNSFsid(torch.utils.data.Dataset):

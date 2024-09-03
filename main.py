@@ -1,8 +1,11 @@
+import sys
 import os
 import uuid
 import logging
 import json
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+import subprocess
+from fastapi import FastAPI, BackgroundTasks, HTTPException, File, UploadFile, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from celery_app import app as celery_app
 from tasks.process_audio import process_audio_task
@@ -11,7 +14,7 @@ from task_status import task_status
 from dotenv import load_dotenv
 from utils import download_model_files
 from firebase_admin import auth
-import sentry_sdk
+# import sentry_sdk
 import time
 import re
 import torch
@@ -19,26 +22,25 @@ from urllib.parse import urlparse, parse_qs
 from proxy_manager import proxy_manager
 import asyncio
 from redis import Redis
-import json
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import random
 from itertools import cycle
+import shutil
+import requests
+import time
+import random
+import yt_dlp
 
 load_dotenv()
 
-sentry_sdk.init(
-    dsn="https://8b2b17f95884c214d3459f520db0bbf3@o4507498009788416.ingest.de.sentry.io/4507498011689040",
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-    enable_tracing=True,
-)
+# sentry_sdk.init(
+#     dsn="https://8b2b17f95884c214d3459f520db0bbf3@o4507498009788416.ingest.de.sentry.io/4507498011689040",
+#     traces_sample_rate=1.0,
+#     profiles_sample_rate=1.0,
+#     enable_tracing=True,
+# )
 
 app = FastAPI()
+security = HTTPBearer()
 
 # Add this near the top of your main.py file, after initializing the FastAPI app
 redis_client = Redis(host='localhost', port=6379, db=0)
@@ -83,18 +85,75 @@ def is_valid_youtube_url(url):
     if not match:
         return False
     
-    # Additional check for valid YouTube domain
     valid_domains = ['youtube.com', 'youtu.be', 'www.youtube.com']
     parsed_url = urlparse(url)
     if parsed_url.netloc not in valid_domains:
         return False
 
-    # Check for HLS playlist
     query_params = parse_qs(parsed_url.query)
     if 'list' in query_params and query_params['list'][0].startswith('HLS_'):
         return False
 
     return True
+
+ORIGINAL_COOKIES_FILE = 'original_cookies.txt'
+WORKING_COOKIES_FILE = 'cookies.txt'
+
+def refresh_cookies():
+    try:
+        shutil.copy2(ORIGINAL_COOKIES_FILE, WORKING_COOKIES_FILE)
+        logger.info("Cookies refreshed successfully")
+    except Exception as e:
+        logger.error(f"Error refreshing cookies: {str(e)}")
+
+def extract_video_info(youtube_url, max_retries=3):
+    if not is_valid_youtube_url(youtube_url):
+        logger.error(f"Invalid YouTube URL: {youtube_url}")
+        return 'Unknown Title', 0
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': '%(id)s.%(ext)s',
+        'ignoreerrors': True,
+        'no_warnings': True,
+        'cookiefile': WORKING_COOKIES_FILE,
+    }
+
+    proxy = proxy_manager.get_proxy()
+    if proxy:
+        ydl_opts['proxy'] = proxy
+
+    for attempt in range(max_retries):
+        try:
+            refresh_cookies()  # Refresh cookies before each attempt
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(youtube_url, download=False)
+                if info:
+                    title = info.get('title', 'Unknown Title')
+                    duration = int(info.get('duration', 0))
+                    logger.info(f"Successfully extracted video info: Title: {title}, Duration: {duration} seconds")
+                    return title, duration
+                else:
+                    raise ValueError("No video info returned")
+        except Exception as e:
+            logger.error(f"Error on attempt {attempt + 1}: {str(e)}")
+            if attempt < max_retries - 1:
+                wait_time = random.uniform(1, 5)
+                logger.info(f"Retrying in {wait_time:.2f} seconds...")
+                time.sleep(wait_time)
+                proxy = proxy_manager.get_proxy()
+                if proxy:
+                    ydl_opts['proxy'] = proxy
+            else:
+                logger.error("Max retries reached. Returning default values.")
+                return 'Unknown Title', 0
+
+    return 'Unknown Title', 0
 
 def is_gpu_idle():
     return torch.cuda.memory_allocated() == 0
@@ -119,71 +178,6 @@ PROXIES = [
     "38.154.97.110:8800",
     "38.153.220.94:8800",
 ]
-
-def extract_video_info(youtube_url):
-    max_retries = 5
-    for attempt in range(max_retries):
-        try:
-            proxy = random.choice(PROXIES)
-            options = Options()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument(f'--proxy-server={proxy}')
-            options.add_argument('--disable-gpu')
-
-            service = Service('/usr/local/bin/chromedriver')
-            driver = webdriver.Chrome(service=service, options=options)
-            
-            logger.info(f"Attempting to extract video info using proxy: {proxy}")
-            
-            driver.get(youtube_url)
-            
-            # Wait for the title element to be present
-            title_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//h1[@class="style-scope ytd-watch-metadata"]//yt-formatted-string'))
-            )
-            title = title_element.text.strip()
-
-            # Wait for the duration element to be present
-            duration_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//span[@class="ytp-time-duration"]'))
-            )
-            duration_text = duration_element.text.strip()
-
-            # Parse duration
-            duration_parts = duration_text.split(':')
-            if not duration_parts:
-                logger.warning(f"Failed to parse duration: '{duration_text}'")
-                duration = 0
-            else:
-                try:
-                    if len(duration_parts) == 3:  # HH:MM:SS
-                        hours, minutes, seconds = map(int, duration_parts)
-                        duration = hours * 3600 + minutes * 60 + seconds
-                    elif len(duration_parts) == 2:  # MM:SS
-                        minutes, seconds = map(int, duration_parts)
-                        duration = minutes * 60 + seconds
-                    else:
-                        logger.warning(f"Unexpected duration format: {duration_text}")
-                        duration = 0
-                except ValueError as e:
-                    logger.warning(f"Failed to parse duration parts: {duration_parts}. Error: {str(e)}")
-                    duration = 0
-
-            driver.quit()
-
-            logger.info(f"Successfully extracted video info from {youtube_url} using proxy {proxy}")
-            logger.info(f"Video title: {title}, duration: {duration} seconds")
-            return title, duration
-
-        except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed to extract video info using proxy {proxy}. Error: {str(e)}")
-            logger.exception("Full traceback:")
-            time.sleep(2 ** attempt)  # Exponential backoff
-
-    logger.error(f"All attempts failed to extract video info from {youtube_url}")
-    return 'Unknown Title', 0
 
 @app.post("/process/")
 async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
@@ -308,6 +302,43 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
     except Exception as e:
         logger.error(f"Error during processing: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+from tasks.train_task import train1key_celery
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        decoded_token = auth.verify_id_token(credentials.credentials)
+        return decoded_token['uid']
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# user_id: str = Depends(verify_token)
+@app.post("/train/")
+async def train(files: list[UploadFile] = File(...)):
+    if not files:
+        raise HTTPException(status_code=400, detail="No audio files provided")
+
+    # Create a unique folder for this training session
+    session_id = str(uuid.uuid4())
+    session_dir = os.path.join(UPLOAD_DIR, session_id)
+    os.makedirs(session_dir, exist_ok=True)
+
+    # Save uploaded files
+    for file in files:
+        if not file.filename.lower().endswith('.wav'):
+            raise HTTPException(status_code=400, detail="Only .wav files are allowed")
+        
+        file_path = os.path.join(session_dir, file.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+    # Call the Celery task
+    task = train1key_celery.delay(session_dir)
+
+    return {"message": "Training started", "session_id": session_id, "task_id": task.id}
 
 if __name__ == "__main__":
     import uvicorn

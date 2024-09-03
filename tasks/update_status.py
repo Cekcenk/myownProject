@@ -32,7 +32,9 @@ def init_status(user_id, task_id, status, imageUrl, artistName, songName):
             "songName": songName,
             "soundUrl": "",
             "videoUrl": "",
-            "timestamp": SERVER_TIMESTAMP  # Add Firestore server timestamp
+            "timestamp": SERVER_TIMESTAMP,
+            "isPulished" : False,
+            "listenCount" : 0  
         })
     except Exception as e:
         print(f"Error setting status in Firestore: {e}")
