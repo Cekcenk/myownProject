@@ -1,6 +1,9 @@
 # Ignore all assets and models directories in the project
 **/assets/
 **/models/
+**/__pycache__/
+__pycache__/
+
 
 # Ignore specific file types globally
 *.wav
@@ -9,6 +12,7 @@
 *.ckpt
 *.onnx
 *.flac
+*.pyc
 
 # Ensure specific directories are ignored
 ./fastapi-rvc/assets/
@@ -16,7 +20,5 @@
 my_audio_separator/dist/audio_separator-0.17.2.tar.gz
 *.zip
 .env
-.env
-.env
-.env
-.env
+
+
