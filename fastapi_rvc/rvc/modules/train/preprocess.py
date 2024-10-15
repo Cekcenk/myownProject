@@ -24,18 +24,24 @@ def println(strr, log_file):
     log_file.write(f"{strr}\n")
     log_file.flush()
 
-def preprocess_dataset_internal(inp_root, exp_dir, sr, n_p, noparallel=False, per=3.0):
-    preprocess_trainset(inp_root, sr, n_p, exp_dir, per, noparallel)
+def preprocess_dataset_internal(inp_root, exp_dir, sr, n_p, noparallel=False, per=3.0, log_file_path=None):
+    if log_file_path is None:
+        log_file_path = f"{exp_dir}/preprocess.log"
+    preprocess_trainset(inp_root, sr, n_p, exp_dir, per, noparallel, log_file_path)
+    with open(log_file_path, "r") as f:
+        return f.read()
 
-
-def preprocess_trainset(inp_root, sr, n_p, exp_dir, per, noparallel):
-    pp = PreProcess(sr, exp_dir, per)
-    logger.info("start preprocess")
+def preprocess_trainset(inp_root, sr, n_p, exp_dir, per, noparallel, log_file_path):
+    pp = PreProcess(sr, exp_dir, per, log_file_path)
+    pp.println("start preprocess")
     pp.pipeline_mp_inp_dir(inp_root, n_p, noparallel)
-    logger.info("end preprocess")
+    pp.println("end preprocess")
 
 class PreProcess:
-    def __init__(self, sr, exp_dir, per=3.7):
+    def __init__(self, sr, exp_dir, per, log_file_path):
+        self.sr = sr
+        self.per = per
+        self.log_file_path = log_file_path
         self.slicer = Slicer(
             sr=sr,
             threshold=-42,
@@ -44,16 +50,14 @@ class PreProcess:
             hop_size=15,
             max_sil_kept=500,
         )
-        self.sr = sr
         self.bh, self.ah = signal.butter(N=5, Wn=48, btype="high", fs=self.sr)
-        self.per = per
         self.overlap = 0.3
         self.tail = self.per + self.overlap
         self.max = 0.9
         self.alpha = 0.75
-        self.exp_dir = exp_dir
-        self.gt_wavs_dir = "%s/0_gt_wavs" % exp_dir
-        self.wavs16k_dir = "%s/1_16k_wavs" % exp_dir
+        self.exp_dir = os.path.join(now_dir, "logs", exp_dir)
+        self.gt_wavs_dir = os.path.join(self.exp_dir, "0_gt_wavs")
+        self.wavs16k_dir = os.path.join(self.exp_dir, "1_16k_wavs")
         os.makedirs(self.exp_dir, exist_ok=True)
         os.makedirs(self.gt_wavs_dir, exist_ok=True)
         os.makedirs(self.wavs16k_dir, exist_ok=True)
@@ -80,6 +84,12 @@ class PreProcess:
             tmp_audio.astype(np.float32),
         )
 
+    def println(self, message):
+        print(message)
+        with open(self.log_file_path, "a") as log_file:
+            log_file.write(f"{message}\n")
+            log_file.flush()
+
     def pipeline(self, path, idx0):
         try:
             audio = load_audio(path, self.sr)
@@ -102,9 +112,9 @@ class PreProcess:
                         idx1 += 1
                         break
                 self.norm_write(tmp_audio, idx0, idx1)
-            println("%s\t-> Success" % path)
+            self.println(f"{path}\t-> Success")
         except:
-            println("%s\t-> %s" % (path, traceback.format_exc()))
+            self.println(f"{path}\t-> {traceback.format_exc()}")
 
     def pipeline_mp(self, infos):
         for path, idx0 in infos:
@@ -130,8 +140,7 @@ class PreProcess:
                 for i in range(n_p):
                     ps[i].join()
         except:
-            println("Fail. %s" % traceback.format_exc())
-
+            self.println(f"Fail. {traceback.format_exc()}")
 
 # if __name__ == "__main__":
 #     preprocess_trainset(inp_root, sr, n_p, exp_dir, per)

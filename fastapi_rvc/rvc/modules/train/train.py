@@ -123,17 +123,18 @@ def start_training(
     version
 ):
     global hps
-    hps = utils.get_hparams()
+    hps = utils.get_hparams(
+        save_every_epoch=save_every_epoch,
+        total_epoch=total_epoch,
+        batch_size=batch_size,
+        experiment_dir=experiment_dir,
+        sample_rate=sample_rate,
+        version=version,
+        if_f0=if_f0,
+        if_latest=if_latest,
+        if_cache_data_in_gpu=if_cache_data_in_gpu
+    )
     hps.model_dir = model_dir
-    hps.train.save_every_epoch = save_every_epoch
-    hps.train.total_epoch = total_epoch
-    hps.train.batch_size = batch_size
-    hps.data.training_files = experiment_dir
-    hps.sample_rate = sample_rate
-    hps.if_f0 = if_f0
-    hps.if_latest = if_latest
-    hps.train.cache_all_data = if_cache_data_in_gpu
-    hps.version = version
     
     if n_gpus is None:
         n_gpus = torch.cuda.device_count()
@@ -141,7 +142,7 @@ def start_training(
     if not torch.cuda.is_available() and torch.backends.mps.is_available():
         n_gpus = 1
     if n_gpus < 1:
-        print("NO GPU DETECTED: falling back to CPU - this may take a while")
+        logger.warning("NO GPU DETECTED: falling back to CPU - this may take a while")
         n_gpus = 1
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -149,6 +150,8 @@ def start_training(
 
     if logger is None:
         logger = utils.get_logger(model_dir)
+
+    logger.info(f"Starting training with {n_gpus} GPUs")
 
     children = []
     for i in range(n_gpus):
@@ -162,6 +165,7 @@ def start_training(
     for child in children:
         child.join()
 
+    logger.info("Training completed")
     return "Training completed"
 
 

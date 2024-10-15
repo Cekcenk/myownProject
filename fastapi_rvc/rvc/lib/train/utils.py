@@ -287,34 +287,44 @@ def load_filepaths_and_text(filename, split="|"):
     
     return filepaths_and_text
 
-
 def get_hparams(
     save_every_epoch,
     total_epoch,
     batch_size,
     experiment_dir,
     sample_rate,
-    save_every_weights="0",
-    version="v2",
-    if_f0=1,
-    if_latest=1,
-    if_cache_data_in_gpu=1
+    version,
+    if_f0,
+    if_latest,
+    if_cache_data_in_gpu,
+    pretrainG="",
+    pretrainD="",
+    gpus="0",
+    save_every_weights="0"
 ):
-    hparams = HParams(
-        save_every_epoch=save_every_epoch,
-        total_epoch=total_epoch,
-        batch_size=batch_size,
-        experiment_dir=experiment_dir,
-        sample_rate=sample_rate,
-        save_every_weights=save_every_weights,
-        version=version,
-        if_f0=if_f0,
-        if_latest=if_latest,
-        if_cache_data_in_gpu=if_cache_data_in_gpu
-    )
+    name = experiment_dir
+    experiment_dir = os.path.join("./logs", experiment_dir)
 
-    # Add any other necessary configurations here
+    config_save_path = os.path.join(experiment_dir, "config.json")
+    with open(config_save_path, "r") as f:
+        config = json.load(f)
 
+    hparams = HParams(**config)
+    hparams.model_dir = hparams.experiment_dir = experiment_dir
+    hparams.save_every_epoch = save_every_epoch
+    hparams.name = name
+    hparams.total_epoch = total_epoch
+    hparams.pretrainG = pretrainG
+    hparams.pretrainD = pretrainD
+    hparams.version = version
+    hparams.gpus = gpus
+    hparams.train.batch_size = batch_size
+    hparams.sample_rate = sample_rate
+    hparams.if_f0 = if_f0
+    hparams.if_latest = if_latest
+    hparams.save_every_weights = save_every_weights
+    hparams.if_cache_data_in_gpu = if_cache_data_in_gpu
+    hparams.data.training_files = "%s/filelist.txt" % experiment_dir
     return hparams
 
 

@@ -27,7 +27,7 @@ def get_device(device):
 
 def load_hubert(device, is_half):
     models, _, _ = fairseq.checkpoint_utils.load_model_ensemble_and_task(
-        ["hubert_base.pt"],
+        ["fastapi_rvc/assets/hubert/hubert_base.pt"],
         suffix="",
     )
     hubert_model = models[0]
@@ -51,15 +51,26 @@ def extract_features(device, n_part, i_part, i_gpu, exp_dir, version, is_half):
     hubert_model = load_hubert(device, is_half)
 
     # Set up input and output directories
-    inp_root = f"{exp_dir}/1_16k_wavs"
-    opt_root = f"{exp_dir}/3_feature256" if version == "v1" else f"{exp_dir}/3_feature768"
+    inp_root = os.path.join(exp_dir, "1_16k_wavs")
+    opt_root = os.path.join(exp_dir, "3_feature256" if version == "v1" else "3_feature768")
+    
+    # Check if input directory exists
+    if not os.path.exists(inp_root):
+        printt(f"Error: Input directory {inp_root} does not exist.")
+        return
+
     os.makedirs(opt_root, exist_ok=True)
 
     # Get the list of files to process
-    names = sorted(list(os.listdir(inp_root)))
+    try:
+        names = sorted(list(os.listdir(inp_root)))
+    except FileNotFoundError:
+        printt(f"Error: Could not list files in {inp_root}. Directory may not exist.")
+        return
+
     for name in names[i_part::n_part]:
-        inp_path = f"{inp_root}/{name}"
-        opt_path = f"{opt_root}/{name}"
+        inp_path = os.path.join(inp_root, name)
+        opt_path = os.path.join(opt_root, name)
 
         if os.path.exists(opt_path):
             printt(f"Skipping {name} as it already exists")
@@ -67,20 +78,23 @@ def extract_features(device, n_part, i_part, i_gpu, exp_dir, version, is_half):
 
         printt(f"Extracting features for {name}")
         
-        # Load and preprocess the audio
-        wav, sr = sf.read(inp_path)
-        wav = torch.from_numpy(wav).to(device)
-        if len(wav.shape) == 2:
-            wav = wav.mean(-1)
-        wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
-        wav = wav.unsqueeze(0)
+        try:
+            # Load and preprocess the audio
+            wav, sr = sf.read(inp_path)
+            wav = torch.from_numpy(wav).to(device)
+            if len(wav.shape) == 2:
+                wav = wav.mean(-1)
+            wav = F.pad(wav, ((400 - 320) // 2, (400 - 320) // 2))
+            wav = wav.unsqueeze(0)
 
-        # Extract features
-        with torch.no_grad():
-            feat = hubert_model.extract_features(wav, padding_mask=None, mask=False)[0]
-        feat = feat.squeeze(0).float().cpu().numpy()
+            # Extract features
+            with torch.no_grad():
+                feat = hubert_model.extract_features(wav, padding_mask=None, mask=False)[0]
+            feat = feat.squeeze(0).float().cpu().numpy()
 
-        # Save the extracted features
-        np.save(opt_path, feat, allow_pickle=False)
+            # Save the extracted features
+            np.save(opt_path, feat, allow_pickle=False)
+        except Exception as e:
+            printt(f"Error processing {name}: {str(e)}")
 
     printt(f"Feature extraction completed for part {i_part + 1}/{n_part}")

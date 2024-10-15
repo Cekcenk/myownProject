@@ -122,6 +122,7 @@ def extract_video_info(youtube_url, max_retries=3):
         'ignoreerrors': True,
         'no_warnings': True,
         'cookiefile': WORKING_COOKIES_FILE,
+        'quiet': True,  # Add this line to suppress most of the output
     }
 
     proxy = proxy_manager.get_proxy()
@@ -141,7 +142,8 @@ def extract_video_info(youtube_url, max_retries=3):
                 else:
                     raise ValueError("No video info returned")
         except Exception as e:
-            logger.error(f"Error on attempt {attempt + 1}: {str(e)}")
+            if not any(msg in str(e) for msg in ['EXT-X-VERSION', 'EXT-X-DISCONTINUITY-SEQUENCE', 'EXT-X-PROGRAM-DATE-TIME']):
+                logger.error(f"Error on attempt {attempt + 1}: {str(e)}")
             if attempt < max_retries - 1:
                 wait_time = random.uniform(1, 5)
                 logger.info(f"Retrying in {wait_time:.2f} seconds...")
@@ -189,6 +191,17 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
         decoded_token = auth.verify_id_token(request.idToken)
         user_id = decoded_token['uid']
 
+        # Fetch the video title and duration
+        video_title, video_duration = extract_video_info(request.youtube_link)
+
+        # Check if the video duration is longer than 7 minutes
+        if video_duration > 7 * 60:
+            raise HTTPException(status_code=501, detail="Video duration is longer than 7 minutes")
+
+        # Check if the model exists in the configuration
+        if request.model_name not in models_config['models']:
+            raise HTTPException(status_code=502, detail="Model not found")
+
         # Check the number of active tasks for the user
         active_tasks = get_user_active_tasks(user_id)
         if active_tasks >= 2:
@@ -197,10 +210,15 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
         # Fetch user document from Firestore
         user_ref, token_counter = fetch_user_document(user_id)
 
-        # Check token counter
-        if token_counter == 0:
-            raise HTTPException(status_code=506, detail="User doesn't have enough tokens left")
-
+        subbed = check_user_subscription(user_id)
+        
+        # Subtract one token if not subscribed
+        if not subbed:
+            # Check token counter
+            if token_counter == 0:
+                raise HTTPException(status_code=506, detail="User doesn't have enough tokens left")
+            subtract_token_if_not_subscribed(user_ref, token_counter)
+        
         unique_id = str(uuid.uuid4())
         output_path = os.path.join(DOWNLOADS_DIR, unique_id)
         input_path = f"{output_path}.mp3"
@@ -212,31 +230,13 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
         processed_vocal_path = os.path.join(output_dir, "processed_vocal.wav")
         final_output_path = os.path.join(output_dir, "final_output.mp3")
 
-        # Fetch the video title and duration
-        video_title, video_duration = extract_video_info(request.youtube_link)
-
-        # Check if the video duration is longer than 7 minutes
-        if video_duration > 7 * 60:
-            raise HTTPException(status_code=501, detail="Video duration is longer than 7 minutes")
-
-
-        # Check if the model exists in the configuration
-        if request.model_name not in models_config['models']:
-            raise HTTPException(status_code=502, detail="Model not found")
-
         model_info = models_config['models'][request.model_name]
         local_model_dir = os.path.join(MODELS_DIR, request.model_name)
         os.makedirs(local_model_dir, exist_ok=True)
 
         # Download the model files if not already cached
         pth_local_path, index_local_path = download_model_files(model_info, local_model_dir)
-
-        subbed = check_user_subscription(user_id)
         
-        # Subtract one token if not subscribed
-        if not subbed:
-            subtract_token_if_not_subscribed(user_ref, token_counter)
-
         # Initialize task status
         task_status[unique_id] = "0/4"
         init_status(
@@ -302,8 +302,7 @@ async def process(request: ProcessRequest, background_tasks: BackgroundTasks):
     except Exception as e:
         logger.error(f"Error during processing: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-from tasks.train_task import train1key_celery
+    
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
@@ -312,33 +311,36 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# from tasks.train_task import train1key_celery
 
-# user_id: str = Depends(verify_token)
-@app.post("/train/")
-async def train(files: list[UploadFile] = File(...)):
-    if not files:
-        raise HTTPException(status_code=400, detail="No audio files provided")
 
-    # Create a unique folder for this training session
-    session_id = str(uuid.uuid4())
-    session_dir = os.path.join(UPLOAD_DIR, session_id)
-    os.makedirs(session_dir, exist_ok=True)
+# UPLOAD_DIR = "uploads"
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    # Save uploaded files
-    for file in files:
-        if not file.filename.lower().endswith('.wav'):
-            raise HTTPException(status_code=400, detail="Only .wav files are allowed")
+# # user_id: str = Depends(verify_token)
+# @app.post("/train/")
+# async def train(files: list[UploadFile] = File(...)):
+#     if not files:
+#         raise HTTPException(status_code=400, detail="No audio files provided")
+
+#     # Create a unique folder for this training session
+#     session_id = str(uuid.uuid4())
+#     session_dir = os.path.join(UPLOAD_DIR, session_id)
+#     os.makedirs(session_dir, exist_ok=True)
+
+#     # Save uploaded files
+#     for file in files:
+#         if not file.filename.lower().endswith('.wav'):
+#             raise HTTPException(status_code=400, detail="Only .wav files are allowed")
         
-        file_path = os.path.join(session_dir, file.filename)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+#         file_path = os.path.join(session_dir, file.filename)
+#         with open(file_path, "wb") as buffer:
+#             shutil.copyfileobj(file.file, buffer)
 
-    # Call the Celery task
-    task = train1key_celery.delay(session_dir)
+#     # Call the Celery task
+#     task = train1key_celery.delay(session_dir)
 
-    return {"message": "Training started", "session_id": session_id, "task_id": task.id}
+#     return {"message": "Training started", "session_id": session_id, "task_id": task.id}
 
 if __name__ == "__main__":
     import uvicorn
